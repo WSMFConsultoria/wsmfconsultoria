@@ -134,7 +134,7 @@ export default function Technology() {
       {/* Banner Exclusivo Section */}
       <section className="w-full mt-16 rounded-3xl overflow-hidden shadow-2xl border border-outline-variant">
         <img 
-          src="/banner-sisendemias.jpg" 
+          src="/banner-sisendemias.jpeg" 
           alt="Tecnologia Exclusiva Sistema SisEndemias" 
           className="w-full h-auto object-cover"
         />
