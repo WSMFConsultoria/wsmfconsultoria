@@ -1,0 +1,36 @@
+@import url('https://fonts.googleapis.com/css2?family=Hanken+Grotesk:ital,wght@0,100..900;1,100..900&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Hanken Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+
+  --color-primary: #000a1e;
+  --color-primary-container: #002147;
+  --color-secondary: #005da7;
+  --color-secondary-container: #0076d1;
+  --color-background: #f9f9ff;
+  --color-surface: #f9f9ff;
+  --color-surface-container: #e7eeff;
+  --color-surface-container-low: #f0f3ff;
+  --color-surface-container-lowest: #ffffff;
+  --color-on-background: #121c2c;
+  --color-on-surface: #121c2c;
+  --color-on-surface-variant: #44474e;
+  --color-outline-variant: #c4c6cf;
+  --color-inverse-primary: #aec7f6;
+  --color-error: #ba1a1a;
+  --color-error-container: #ffdad6;
+  --color-on-primary: #ffffff;
+  --color-on-secondary: #ffffff;
+  --color-primary-fixed-dim: #aec7f6;
+  --color-secondary-fixed-dim: #aec7f6;
+}
+
+@layer utilities {
+  .hero-pattern {
+    background-color: #000a1e;
+    background-image: radial-gradient(circle at top right, #002147 0%, transparent 50%),
+                      radial-gradient(circle at bottom left, #002147 0%, transparent 50%);
+  }
+}

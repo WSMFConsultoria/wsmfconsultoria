@@ -1,0 +1,104 @@
+/**
+ * @license
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+import { Service, FeatureStep } from './types';
+
+export const servicesData: Service[] = [
+  {
+    id: 1,
+    title: "ESTRATIFICAÇÃO DE RISCO",
+    description: "Realizamos a análise profunda dos indicadores de saúde dos municípios contratados para identificar áreas de vulnerabilidade.",
+    icon: "ShieldAlert",
+    details: [
+      {
+        title: "Identificação de Localidades",
+        description: "Mapeamento detalhado de bairros e regiões com alto risco endêmico."
+      },
+      {
+        title: "Relatórios Estratégicos",
+        description: "Elaboração de documentos técnicos com diagnósticos precisos, facilitando a tomada de decisão da gestão municipal."
+      }
+    ]
+  },
+  {
+    id: 2,
+    title: "RECONHECIMENTO GEOGRÁFICO (RG)",
+    description: "Atualização e organização da base territorial urbana e rural, essencial para o planejamento das visitas domiciliares e ciclos de tratamento.",
+    icon: "Map",
+    subtitle: "Base Atualizada"
+  },
+  {
+    id: 3,
+    title: "MONITORAMENTO COM OVITRAMPAS",
+    description: "Implementação de armadilhas de oviposição (ovitrampas) para detecção precoce da presença do Aedes aegypti.",
+    icon: "Bug",
+    details: [
+      {
+        title: "Logística Completa",
+        description: "Oferecemos todo o material necessário para a execução das atividades em campo."
+      }
+    ]
+  },
+  {
+    id: 4,
+    title: "CAPACITAÇÃO E TREINAMENTO",
+    description: "Treinamento técnico para Agentes de Combate a Endemias (ACE), capacitando as equipes municipais.",
+    icon: "GraduationCap",
+    details: [
+      {
+        title: "Frentes de Capacitação",
+        description: "Instalação e monitoramento de ovitrampas, identificação de focos e criadouros, coleta e registro de dados, e planejamento estratégico de campo."
+      }
+    ]
+  }
+];
+
+export const sisEndemiasSteps: FeatureStep[] = [
+  {
+    step: "1",
+    title: "Coleta via tablet",
+    description: "Registro de informações diretamente em campo pelas equipes, eliminando papel, planilhas avulsas e retrabalho de digitação.",
+    icon: "Tablet"
+  },
+  {
+    step: "2",
+    title: "Registro completo",
+    description: "Armazenamento organizado, estruturado e altamente seguro dos dados epidemiológicos coletados, em conformidade com as diretrizes de saúde.",
+    icon: "Database"
+  },
+  {
+    step: "3",
+    title: "Uso online/offline",
+    description: "Funcionamento contínuo em campo com ou sem conexão de internet. Os dados são sincronizados automaticamente assim que houver rede disponível.",
+    icon: "Wifi"
+  }
+];
+
+export const contactInfo = {
+  email: "wsmfconsultoria@gmail.com",
+  phone: "75 99903-4004",
+  address: "Santo Estevão - BA, Bairro Alagoinhas, nº 140 - CEP 44190-000",
+  instagram: "@wsmfgestaoemsaude",
+  coords: "Santo Estevão - BA"
+};
+
+export const faqs = [
+  {
+    question: "O que é o SisEndemias?",
+    answer: "O SisEndemias é uma solução tecnológica proprietária desenvolvida pela WSMF para modernizar o trabalho de campo e a gestão administrativa de endemias. Ele permite a coleta de dados via tablet e o monitoramento em tempo real."
+  },
+  {
+    question: "A WSMF atende a quais tipos de municípios?",
+    answer: "Atendemos municípios de pequeno, médio e grande porte, customizando o suporte técnico e operacional de acordo com os índices de infestação e as necessidades específicas de cada localidade."
+  },
+  {
+    question: "Como funciona a implantação das ovitrampas?",
+    answer: "Fornecemos toda a logística e materiais, além de capacitar os Agentes de Combate a Endemias (ACE) para a instalação física, leitura de palhetas, contagem de ovos e alimentação dos dados no sistema."
+  },
+  {
+    question: "Como solicitar uma proposta ou orçamento?",
+    answer: "Você pode clicar no botão 'Solicitar Orçamento' no cabeçalho ou preencher o formulário na página de Contato. Nossa equipe técnica analisará o perfil do seu município e entrará em contato rapidamente."
+  }
+];

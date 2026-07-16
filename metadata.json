@@ -1,0 +1,6 @@
+{
+  "name": "WSMF Consultoria",
+  "description": "Portfólio Institucional e Sistema SisEndemias para Vigilância Epidemiológica e Controle de Endemias",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
