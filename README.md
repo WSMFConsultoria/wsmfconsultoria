@@ -1,20 +1,27 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://ai.google.dev/static/site-assets/images/share-ais-513315318.png" />
-</div>
+# WSMF Consultoria - Sistema Web e Painel Administrativo
 
-# Run and deploy your AI Studio app
+Este é o repositório oficial da plataforma web da **WSMF Gestão em Saúde Consultoria Ltda**.
 
-This contains everything you need to run your app locally.
+## Estrutura do Projeto
 
-View your app in AI Studio: https://ai.studio/apps/9dcdb73e-4df3-442a-9f95-0b2ff426e4ae
+O sistema é construído utilizando tecnologias modernas de frontend e backend:
+- **Frontend**: React (Vite), TypeScript, Tailwind CSS, Zustand, Framer Motion e Lucide React.
+- **Backend/Banco de Dados**: Supabase (PostgreSQL, Storage e Autenticação).
 
-## Run Locally
+## Painel Administrativo
 
-**Prerequisites:**  Node.js
+O projeto possui um painel administrativo oculto no caminho `/admin`. A partir do painel, os administradores podem gerenciar todo o conteúdo dinâmico do site (Páginas, Mídias, Depoimentos, etc.).
 
+## Rodando o Projeto Localmente
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+1. Certifique-se de que o arquivo `.env` (com as chaves do Supabase) está na raiz do projeto.
+2. Instale as dependências:
+   ```bash
+   npm install
+   ```
+3. Inicie o servidor de desenvolvimento:
+   ```bash
+   npm run dev
+   ```
+
+*(c) 2026 WSMF Gestão em Saúde Consultoria Ltda. Todos os direitos reservados.*
