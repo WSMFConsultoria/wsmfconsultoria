@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { X, Send, CheckCircle2, ClipboardList, Building } from 'lucide-react';
+import { X, Send, CheckCircle2, ClipboardList, Building, ChevronDown } from 'lucide-react';
 import { BudgetRequest } from '../../types';
 import { useModalStore } from '../../store/useModalStore';
 import { supabase } from '../../lib/supabase';
@@ -13,6 +13,7 @@ export default function BudgetModal() {
   const [email, setEmail] = useState('');
   const [municipio, setMunicipio] = useState('');
   const [uf, setUf] = useState('');
+  const [isUfOpen, setIsUfOpen] = useState(false);
   const [telefone, setTelefone] = useState('');
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
   const [mensagem, setMensagem] = useState('');
@@ -27,6 +28,8 @@ export default function BudgetModal() {
     "Capacitação e Treinamento (ACE)",
     "SisEndemias (App)"
   ];
+
+  const ufs = ["AC","AL","AP","AM","BA","CE","DF","ES","GO","MA","MT","MS","MG","PA","PB","PR","PE","PI","RJ","RN","RS","RO","RR","SC","SP","SE","TO"];
 
   const handleCheckboxChange = (service: string) => {
     if (selectedServices.includes(service)) {
@@ -188,23 +191,61 @@ export default function BudgetModal() {
                                 />
                                 <Building className="w-4 h-4 text-on-surface-variant/70 absolute left-3.5 top-1/2 -translate-y-1/2" />
                               </div>
-                              <select
-                                value={uf}
-                                onChange={(e) => setUf(e.target.value)}
-                                className="w-[72px] shrink-0 bg-surface-container-low border border-outline-variant rounded px-2 py-2.5 font-sans text-sm text-on-surface focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary transition-all"
-                                required
-                              >
-                                <option value="" disabled>UF</option>
-                                <option value="AC">AC</option><option value="AL">AL</option><option value="AP">AP</option>
-                                <option value="AM">AM</option><option value="BA">BA</option><option value="CE">CE</option>
-                                <option value="DF">DF</option><option value="ES">ES</option><option value="GO">GO</option>
-                                <option value="MA">MA</option><option value="MT">MT</option><option value="MS">MS</option>
-                                <option value="MG">MG</option><option value="PA">PA</option><option value="PB">PB</option>
-                                <option value="PR">PR</option><option value="PE">PE</option><option value="PI">PI</option>
-                                <option value="RJ">RJ</option><option value="RN">RN</option><option value="RS">RS</option>
-                                <option value="RO">RO</option><option value="RR">RR</option><option value="SC">SC</option>
-                                <option value="SP">SP</option><option value="SE">SE</option><option value="TO">TO</option>
-                              </select>
+                              <div className="relative shrink-0 flex">
+                                <button
+                                  type="button"
+                                  onClick={() => setIsUfOpen(!isUfOpen)}
+                                  className="w-[80px] h-full flex items-center justify-between bg-surface-container-low border border-outline-variant rounded px-2 font-sans text-sm text-on-surface focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary transition-all"
+                                >
+                                  {uf || 'UF'}
+                                  <ChevronDown className="w-4 h-4 text-on-surface-variant shrink-0" />
+                                </button>
+                                
+                                <AnimatePresence>
+                                  {isUfOpen && (
+                                    <>
+                                      {/* Invisible overlay just to close the dropdown when clicking outside */}
+                                      <div 
+                                        className="fixed inset-0 z-40" 
+                                        onClick={() => setIsUfOpen(false)}
+                                      />
+                                      <motion.div
+                                        initial={{ opacity: 0, y: -10 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        exit={{ opacity: 0, y: -10 }}
+                                        className="absolute top-full mt-1 right-0 w-[140px] bg-white dark:bg-surface border border-outline-variant rounded-xl shadow-xl z-50 flex flex-col overflow-hidden"
+                                      >
+                                        <div className="flex justify-between items-center px-3 py-2 border-b border-outline-variant bg-surface-container-lowest shrink-0">
+                                          <span className="text-[10px] uppercase font-bold text-on-surface-variant">Estado</span>
+                                          <button 
+                                            type="button"
+                                            onClick={() => setIsUfOpen(false)}
+                                            className="p-1 text-on-surface-variant hover:text-primary rounded-full hover:bg-surface-container-low transition-colors"
+                                            aria-label="Fechar UF"
+                                          >
+                                            <X className="w-3.5 h-3.5" />
+                                          </button>
+                                        </div>
+                                        <div className="max-h-48 overflow-y-auto p-1 grid grid-cols-2 gap-1">
+                                          {ufs.map(estado => (
+                                            <button
+                                              key={estado}
+                                              type="button"
+                                              onClick={() => {
+                                                setUf(estado);
+                                                setIsUfOpen(false);
+                                              }}
+                                              className={`w-full text-center py-2 text-xs font-mono rounded-lg transition-colors ${uf === estado ? 'bg-secondary text-white font-bold shadow-sm' : 'hover:bg-surface-container-low text-on-surface'}`}
+                                            >
+                                              {estado}
+                                            </button>
+                                          ))}
+                                        </div>
+                                      </motion.div>
+                                    </>
+                                  )}
+                                </AnimatePresence>
+                              </div>
                             </div>
                           </div>
 
