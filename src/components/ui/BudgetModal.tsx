@@ -87,7 +87,6 @@ export default function BudgetModal() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 0.5 }}
             exit={{ opacity: 0 }}
-            onClick={onClose}
             className="fixed inset-0 bg-primary/80 backdrop-blur-sm"
           ></motion.div>
 
