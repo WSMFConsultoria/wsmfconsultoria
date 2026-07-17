@@ -170,6 +170,13 @@ export default function AdminContentEditorModal({ page, onClose }: AdminContentE
         <div className="space-y-6">
           {Array.isArray(parsedContent) && parsedContent.map((step: any, index: number) => (
             <div key={index} className="p-4 border border-outline-variant rounded-lg bg-surface-container-lowest relative">
+              <button 
+                onClick={() => removeArrayItem(index)}
+                className="absolute top-2 right-2 p-1 text-red-500 hover:bg-red-50 rounded"
+                title="Excluir Passo"
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
               <div className="space-y-3 mt-2">
                 <div className="grid grid-cols-2 gap-4">
                   <div>
@@ -212,6 +219,13 @@ export default function AdminContentEditorModal({ page, onClose }: AdminContentE
               </div>
             </div>
           ))}
+          <button 
+            onClick={() => addArrayItem({ step: `${parsedContent.length + 1}`, icon: 'Circle', title: 'Novo Passo', description: 'Descrição do novo passo.' })}
+            className="w-full py-2 border-2 border-dashed border-outline-variant text-secondary rounded-lg font-bold flex items-center justify-center gap-2 hover:border-secondary hover:bg-secondary/5 transition-colors"
+          >
+            <Plus className="w-4 h-4" />
+            Adicionar Passo
+          </button>
         </div>
       );
     }
@@ -221,6 +235,13 @@ export default function AdminContentEditorModal({ page, onClose }: AdminContentE
         <div className="space-y-6">
           {Array.isArray(parsedContent) && parsedContent.map((svc: any, index: number) => (
             <div key={index} className="p-4 border border-outline-variant rounded-lg bg-surface-container-lowest relative">
+              <button 
+                onClick={() => removeArrayItem(index)}
+                className="absolute top-2 right-2 p-1 text-red-500 hover:bg-red-50 rounded"
+                title="Excluir Serviço"
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
               <div className="space-y-3 mt-2">
                 <div>
                   <label className="block text-xs font-bold text-primary mb-1">Título</label>
@@ -254,6 +275,13 @@ export default function AdminContentEditorModal({ page, onClose }: AdminContentE
               </div>
             </div>
           ))}
+          <button 
+            onClick={() => addArrayItem({ title: 'Novo Serviço', description: 'Descrição detalhada do novo serviço.', subtitle: '' })}
+            className="w-full py-2 border-2 border-dashed border-outline-variant text-secondary rounded-lg font-bold flex items-center justify-center gap-2 hover:border-secondary hover:bg-secondary/5 transition-colors"
+          >
+            <Plus className="w-4 h-4" />
+            Adicionar Serviço
+          </button>
         </div>
       );
     }
