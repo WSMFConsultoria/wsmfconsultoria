@@ -1,15 +1,43 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
-import { sisEndemiasSteps } from '../data';
+import { supabase } from '../lib/supabase';
+import { FeatureStep } from '../types';
 import { 
   Tablet, 
   Database, 
   Wifi, 
   RefreshCw, 
-  CheckCircle2
+  CheckCircle2,
+  Loader2
 } from 'lucide-react';
 
 export default function Technology() {
+  const [sisEndemiasSteps, setSisEndemiasSteps] = useState<FeatureStep[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchSteps = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('content_blocks')
+          .select('content')
+          .eq('section_name', 'sis_endemias_steps')
+          .single();
+          
+        if (error) throw error;
+        if (data && data.content) {
+          setSisEndemiasSteps(data.content as FeatureStep[]);
+        }
+      } catch (error) {
+        console.error('Error fetching steps:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchSteps();
+  }, []);
+
   const iconMap: { [key: string]: React.ComponentType<any> } = {
     Tablet: Tablet,
     Database: Database,
@@ -107,28 +135,34 @@ export default function Technology() {
           COMO FUNCIONA:
         </h2>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {sisEndemiasSteps.map((step, idx) => {
-            const IconComponent = iconMap[step.icon] || Tablet;
-            return (
-              <motion.div 
-                key={step.step}
-                variants={itemVariants}
-                className="bg-surface-container-lowest border border-outline-variant p-8 rounded-2xl shadow-sm relative group hover:shadow-md transition-shadow border-t-2 border-t-secondary"
-              >
-                <div className="w-14 h-14 rounded-2xl bg-surface-container flex items-center justify-center text-secondary mb-6 group-hover:bg-secondary group-hover:text-on-secondary transition-colors duration-300 shadow-inner">
-                  <IconComponent className="w-7 h-7" />
-                </div>
-                <h3 className="font-sans text-lg font-bold text-primary mb-2">
-                  {step.step}. {step.title}
-                </h3>
-                <p className="font-sans text-sm text-on-surface-variant leading-relaxed">
-                  {step.description}
-                </p>
-              </motion.div>
-            );
-          })}
-        </div>
+        {loading ? (
+          <div className="flex justify-center py-10">
+            <Loader2 className="w-8 h-8 animate-spin text-secondary" />
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {sisEndemiasSteps.map((step, idx) => {
+              const IconComponent = iconMap[step.icon] || Tablet;
+              return (
+                <motion.div 
+                  key={step.step}
+                  variants={itemVariants}
+                  className="bg-surface-container-lowest border border-outline-variant p-8 rounded-2xl shadow-sm relative group hover:shadow-md transition-shadow border-t-2 border-t-secondary"
+                >
+                  <div className="w-14 h-14 rounded-2xl bg-surface-container flex items-center justify-center text-secondary mb-6 group-hover:bg-secondary group-hover:text-on-secondary transition-colors duration-300 shadow-inner">
+                    <IconComponent className="w-7 h-7" />
+                  </div>
+                  <h3 className="font-sans text-lg font-bold text-primary mb-2">
+                    {step.step}. {step.title}
+                  </h3>
+                  <p className="font-sans text-sm text-on-surface-variant leading-relaxed">
+                    {step.description}
+                  </p>
+                </motion.div>
+              );
+            })}
+          </div>
+        )}
       </section>
 
       {/* Banner Exclusivo Section */}

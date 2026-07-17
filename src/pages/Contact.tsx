@@ -1,45 +1,80 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Mail, Phone, MapPin, AtSign, Send, CheckCircle2, Map } from 'lucide-react';
-import { contactInfo } from '../data';
+import { Mail, Phone, MapPin, AtSign, Send, CheckCircle2, Map, Loader2 } from 'lucide-react';
 import { ContactMessage } from '../types';
-import { useAppStore } from '../store/useAppStore';
+import { supabase } from '../lib/supabase';
 
 export default function Contact() {
-  const onAddMessage = useAppStore(state => state.addMessage);
-  
   const [nome, setNome] = useState('');
   const [email, setEmail] = useState('');
   const [assunto, setAssunto] = useState('');
   const [mensagem, setMensagem] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState('');
   const [submitSuccess, setSubmitSuccess] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [contactInfo, setContactInfo] = useState<any>(null);
+  const [loadingInfo, setLoadingInfo] = useState(true);
+
+  useEffect(() => {
+    const fetchContactInfo = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('content_blocks')
+          .select('content')
+          .eq('section_name', 'contact_info')
+          .single();
+          
+        if (error) throw error;
+        if (data && data.content) {
+          setContactInfo(data.content);
+        }
+      } catch (error) {
+        console.error('Error fetching contact info:', error);
+      } finally {
+        setLoadingInfo(false);
+      }
+    };
+    
+    fetchContactInfo();
+  }, []);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!nome || !email || !assunto || !mensagem) return;
 
-    const newMessage: ContactMessage = {
-      id: Date.now().toString(),
-      nome,
-      email,
-      assunto,
-      mensagem,
-      data: new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })
-    };
+    setIsSubmitting(true);
+    setSubmitError('');
 
-    onAddMessage(newMessage);
-    setSubmitSuccess(true);
+    try {
+      const { error } = await supabase.from('contact_messages').insert([
+        { 
+          nome,
+          email,
+          assunto,
+          mensagem
+        }
+      ]);
 
-    // Reset fields
-    setNome('');
-    setEmail('');
-    setAssunto('');
-    setMensagem('');
+      if (error) throw error;
 
-    // Clear success message after 4 seconds
-    setTimeout(() => {
-      setSubmitSuccess(false);
-    }, 4000);
+      setSubmitSuccess(true);
+      
+      // Reset fields
+      setNome('');
+      setEmail('');
+      setAssunto('');
+      setMensagem('');
+
+      // Clear success message after 4 seconds
+      setTimeout(() => {
+        setSubmitSuccess(false);
+      }, 4000);
+    } catch (err: any) {
+      setSubmitError(err.message || 'Erro ao enviar a mensagem.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const containerVariants = {
@@ -57,7 +92,7 @@ export default function Contact() {
       variants={containerVariants}
       initial="hidden"
       animate="visible"
-      className="w-full max-w-7xl mx-auto px-6 py-12 md:py-16 space-y-12 flex-grow"
+      className="w-full max-w-7xl mx-auto px-6 py-12 md:py-16 space-y-12 flex-grow min-h-screen"
     >
       {/* Page Title Header */}
       <section className="bg-surface-container-lowest border border-outline-variant rounded-2xl p-8 relative overflow-hidden text-center md:text-left shadow-sm">
@@ -75,65 +110,71 @@ export default function Contact() {
         
         {/* Contact Info cards */}
         <div className="lg:col-span-5 flex flex-col gap-5">
-          {/* Email Card */}
-          <div className="bg-surface border border-outline-variant rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
-            <div className="absolute top-0 left-0 w-full h-[3px] bg-secondary"></div>
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-xl bg-surface-container flex items-center justify-center text-secondary group-hover:bg-secondary group-hover:text-on-secondary transition-colors duration-300">
-                <Mail className="w-5 h-5" />
-              </div>
-              <div className="min-w-0">
-                <h3 className="font-mono text-[10px] uppercase tracking-widest text-on-surface-variant font-bold">Email</h3>
-                <p className="font-sans text-base md:text-lg font-bold text-primary truncate mt-0.5">{contactInfo.email}</p>
-              </div>
+          {loadingInfo || !contactInfo ? (
+            <div className="flex justify-center py-10 bg-surface border border-outline-variant rounded-xl h-[300px] items-center">
+              <Loader2 className="w-8 h-8 animate-spin text-secondary" />
             </div>
-          </div>
+          ) : (
+            <>
+              {/* Email Card */}
+              <div className="bg-surface border border-outline-variant rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
+                <div className="absolute top-0 left-0 w-full h-[3px] bg-secondary"></div>
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-xl bg-surface-container flex items-center justify-center text-secondary group-hover:bg-secondary group-hover:text-on-secondary transition-colors duration-300">
+                    <Mail className="w-5 h-5" />
+                  </div>
+                  <div className="min-w-0">
+                    <h3 className="font-mono text-[10px] uppercase tracking-widest text-on-surface-variant font-bold">Email</h3>
+                    <p className="font-sans text-base md:text-lg font-bold text-primary truncate mt-0.5">{contactInfo.email}</p>
+                  </div>
+                </div>
+              </div>
 
-          {/* Phone Card */}
-          <div className="bg-surface border border-outline-variant rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
-            <div className="absolute top-0 left-0 w-full h-[3px] bg-secondary"></div>
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-xl bg-surface-container flex items-center justify-center text-secondary group-hover:bg-secondary group-hover:text-on-secondary transition-colors duration-300">
-                <Phone className="w-5 h-5" />
+              {/* Phone Card */}
+              <div className="bg-surface border border-outline-variant rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
+                <div className="absolute top-0 left-0 w-full h-[3px] bg-secondary"></div>
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-xl bg-surface-container flex items-center justify-center text-secondary group-hover:bg-secondary group-hover:text-on-secondary transition-colors duration-300">
+                    <Phone className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="font-mono text-[10px] uppercase tracking-widest text-on-surface-variant font-bold">Telefone</h3>
+                    <p className="font-sans text-base md:text-lg font-bold text-primary mt-0.5">{contactInfo.phone}</p>
+                  </div>
+                </div>
               </div>
-              <div>
-                <h3 className="font-mono text-[10px] uppercase tracking-widest text-on-surface-variant font-bold">Telefone</h3>
-                <p className="font-sans text-base md:text-lg font-bold text-primary mt-0.5">{contactInfo.phone}</p>
-              </div>
-            </div>
-          </div>
 
-          {/* Address Card */}
-          <div className="bg-surface border border-outline-variant rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
-            <div className="absolute top-0 left-0 w-full h-[3px] bg-secondary"></div>
-            <div className="flex items-start gap-4">
-              <div className="w-12 h-12 rounded-xl bg-surface-container flex items-center justify-center text-secondary group-hover:bg-secondary group-hover:text-on-secondary transition-colors duration-300 shrink-0">
-                <MapPin className="w-5 h-5" />
+              {/* Address Card */}
+              <div className="bg-surface border border-outline-variant rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
+                <div className="absolute top-0 left-0 w-full h-[3px] bg-secondary"></div>
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 rounded-xl bg-surface-container flex items-center justify-center text-secondary group-hover:bg-secondary group-hover:text-on-secondary transition-colors duration-300 shrink-0">
+                    <MapPin className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="font-mono text-[10px] uppercase tracking-widest text-on-surface-variant font-bold">Endereço</h3>
+                    <p className="font-sans text-sm md:text-base text-primary font-semibold mt-0.5 leading-relaxed whitespace-pre-line">
+                      {contactInfo.address}
+                    </p>
+                  </div>
+                </div>
               </div>
-              <div>
-                <h3 className="font-mono text-[10px] uppercase tracking-widest text-on-surface-variant font-bold">Endereço</h3>
-                <p className="font-sans text-sm md:text-base text-primary font-semibold mt-0.5 leading-relaxed">
-                  Santo Estevão - BA<br />
-                  Bairro Alagoinhas, nº 140<br />
-                  CEP 44190-000
-                </p>
-              </div>
-            </div>
-          </div>
 
-          {/* Instagram Card */}
-          <div className="bg-surface border border-outline-variant rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
-            <div className="absolute top-0 left-0 w-full h-[3px] bg-secondary"></div>
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-xl bg-surface-container flex items-center justify-center text-secondary group-hover:bg-secondary group-hover:text-on-secondary transition-colors duration-300">
-                <AtSign className="w-5 h-5" />
+              {/* Instagram Card */}
+              <div className="bg-surface border border-outline-variant rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
+                <div className="absolute top-0 left-0 w-full h-[3px] bg-secondary"></div>
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-xl bg-surface-container flex items-center justify-center text-secondary group-hover:bg-secondary group-hover:text-on-secondary transition-colors duration-300">
+                    <AtSign className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h3 className="font-mono text-[10px] uppercase tracking-widest text-on-surface-variant font-bold">Instagram</h3>
+                    <p className="font-sans text-base md:text-lg font-bold text-primary mt-0.5">{contactInfo.instagram}</p>
+                  </div>
+                </div>
               </div>
-              <div>
-                <h3 className="font-mono text-[10px] uppercase tracking-widest text-on-surface-variant font-bold">Instagram</h3>
-                <p className="font-sans text-base md:text-lg font-bold text-primary mt-0.5">{contactInfo.instagram}</p>
-              </div>
-            </div>
-          </div>
+            </>
+          )}
         </div>
 
         {/* Form Container */}
@@ -204,13 +245,20 @@ export default function Contact() {
               ></textarea>
             </div>
 
+            {submitError && (
+              <div className="bg-red-50 text-red-600 p-4 rounded-lg text-sm border border-red-200 w-full col-span-full">
+                {submitError}
+              </div>
+            )}
+
             {/* Submit & Status */}
             <div className="flex flex-col sm:flex-row items-center gap-4 pt-2">
               <button
                 type="submit"
-                className="w-full sm:w-auto bg-primary hover:bg-secondary text-on-primary py-3 px-8 rounded font-mono text-xs uppercase tracking-widest font-bold transition-all flex items-center justify-center gap-2 cursor-pointer shadow hover:shadow-md"
+                disabled={isSubmitting}
+                className="w-full sm:w-auto bg-primary hover:bg-secondary text-on-primary py-3 px-8 rounded font-mono text-xs uppercase tracking-widest font-bold transition-all flex items-center justify-center gap-2 cursor-pointer shadow hover:shadow-md disabled:opacity-70"
               >
-                <span>Enviar Mensagem</span>
+                <span>{isSubmitting ? 'Enviando...' : 'Enviar Mensagem'}</span>
                 <Send className="w-3.5 h-3.5" />
               </button>
 
@@ -237,7 +285,7 @@ export default function Contact() {
         <div className="absolute inset-0 flex flex-col items-center justify-center text-on-surface-variant z-10 bg-surface/40 backdrop-blur-sm pointer-events-none text-center">
           <Map className="w-12 h-12 mb-2 text-secondary animate-pulse" />
           <h3 className="font-sans text-lg font-bold text-primary">Visualização do Mapa</h3>
-          <p className="font-mono text-xs text-on-surface-variant uppercase tracking-wider mt-0.5">Santo Estevão - BA</p>
+          <p className="font-mono text-xs text-on-surface-variant uppercase tracking-wider mt-0.5">{contactInfo?.coords || 'Santo Estevão - BA'}</p>
         </div>
         <div 
           className="absolute inset-0 bg-cover bg-center opacity-85 group-hover:scale-102 transition-transform duration-700" 

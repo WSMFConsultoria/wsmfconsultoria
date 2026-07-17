@@ -1,11 +1,41 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Mail, Phone, MapPin, Instagram } from 'lucide-react';
 import { useModalStore } from '../../store/useModalStore';
+import { supabase } from '../../lib/supabase';
 
 export default function Footer() {
   const navigate = useNavigate();
   const openBudgetModal = useModalStore((state) => state.openBudgetModal);
+
+  const [contactInfo, setContactInfo] = useState<any>({
+    email: 'wsmfconsultoria@gmail.com',
+    phone: '75 99903-4004',
+    address: 'Santo Estevão - BA, Bairro Alagoinhas, nº 140 - CEP 44190-000',
+    instagram: '@wsmfgestaoemsaude',
+    coords: 'Santo Estevão - BA'
+  });
+
+  useEffect(() => {
+    const fetchContactInfo = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('content_blocks')
+          .select('content')
+          .eq('section_name', 'contact_info')
+          .single();
+          
+        if (error) throw error;
+        if (data && data.content) {
+          setContactInfo(data.content);
+        }
+      } catch (error) {
+        console.error('Error fetching contact info for footer:', error);
+      }
+    };
+    
+    fetchContactInfo();
+  }, []);
 
   const handleNavClick = (path: string) => {
     navigate(path);
@@ -58,6 +88,30 @@ export default function Footer() {
             </li>
             <li>
               <button
+                onClick={() => handleNavClick('/contato')}
+                className="text-slate-300 hover:text-white hover:underline transition-all cursor-pointer text-left"
+              >
+                Contato
+              </button>
+            </li>
+            <li>
+              <button
+                onClick={() => handleNavClick('/acoes-equipe')}
+                className="text-slate-300 hover:text-white hover:underline transition-all cursor-pointer text-left"
+              >
+                Workshops e Treinamentos
+              </button>
+            </li>
+            <li>
+              <button
+                onClick={() => handleNavClick('/feedback')}
+                className="text-slate-300 hover:text-white hover:underline transition-all cursor-pointer text-left"
+              >
+                Avaliações
+              </button>
+            </li>
+            <li>
+              <button
                 onClick={() => handleNavClick('/sobre')}
                 className="text-slate-300 hover:text-white hover:underline transition-all cursor-pointer text-left"
               >
@@ -75,15 +129,15 @@ export default function Footer() {
           <ul className="space-y-3 text-sm">
             <li className="flex items-center gap-2 text-slate-300">
               <Mail className="w-4 h-4 text-blue-400 dark:text-inverse-primary shrink-0" />
-              <span className="truncate text-slate-300">wsmfconsultoria@gmail.com</span>
+              <span className="truncate text-slate-300">{contactInfo.email}</span>
             </li>
             <li className="flex items-center gap-2 text-slate-300">
               <Phone className="w-4 h-4 text-blue-400 dark:text-inverse-primary shrink-0" />
-              <span className="text-slate-300">75 99903-4004</span>
+              <span className="text-slate-300">{contactInfo.phone}</span>
             </li>
             <li className="flex items-start gap-2 text-slate-300">
               <MapPin className="w-4 h-4 text-blue-400 dark:text-inverse-primary shrink-0 mt-0.5" />
-              <span className="text-slate-300">Santo Estevão - BA</span>
+              <span className="text-slate-300 whitespace-pre-line">{contactInfo.address}</span>
             </li>
           </ul>
         </div>
@@ -101,7 +155,7 @@ export default function Footer() {
           </button>
           <div className="flex items-center gap-3 pt-2">
             <a
-              href="https://instagram.com/wsmfgestaoemsaude"
+              href={`https://instagram.com/${contactInfo.instagram?.replace('@', '')}`}
               target="_blank"
               rel="noopener noreferrer"
               className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-slate-300 hover:text-white transition-all"

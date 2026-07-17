@@ -42,3 +42,23 @@ export interface FeatureStep {
   description: string;
   icon: string;
 }
+
+export interface Testimonial {
+  id: string;
+  author_name: string;
+  author_role?: string;
+  content: string;
+  avatar_url?: string;
+  is_approved: boolean;
+  created_at: string;
+}
+
+export interface TeamAction {
+  id: string;
+  title: string;
+  description?: string;
+  image_url?: string;
+  action_date: string;
+  created_at: string;
+  updated_at: string;
+}

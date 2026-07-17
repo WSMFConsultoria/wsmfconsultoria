@@ -3,12 +3,11 @@ import { motion, AnimatePresence } from 'motion/react';
 import { X, Send, CheckCircle2, ClipboardList, Building } from 'lucide-react';
 import { BudgetRequest } from '../../types';
 import { useModalStore } from '../../store/useModalStore';
-import { useAppStore } from '../../store/useAppStore';
+import { supabase } from '../../lib/supabase';
 
 export default function BudgetModal() {
   const isOpen = useModalStore((state) => state.isBudgetModalOpen);
   const onClose = useModalStore((state) => state.closeBudgetModal);
-  const onAddBudget = useAppStore((state) => state.addBudget);
 
   const [nome, setNome] = useState('');
   const [email, setEmail] = useState('');
@@ -17,6 +16,8 @@ export default function BudgetModal() {
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
   const [mensagem, setMensagem] = useState('');
   const [success, setSuccess] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState('');
 
   const availableServices = [
     "Estratificação de Risco",
@@ -33,35 +34,45 @@ export default function BudgetModal() {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!nome || !email || !municipio || !telefone) return;
 
-    const newRequest: BudgetRequest = {
-      id: Date.now().toString(),
-      nome,
-      email,
-      municipio,
-      telefone,
-      servicosInteresse: selectedServices,
-      mensagemAdicional: mensagem,
-      data: new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })
-    };
+    setIsSubmitting(true);
+    setSubmitError('');
 
-    onAddBudget(newRequest);
-    setSuccess(true);
+    try {
+      const { error } = await supabase.from('budget_requests').insert([
+        {
+          nome,
+          email,
+          municipio,
+          telefone,
+          servicos_interesse: selectedServices,
+          mensagem_adicional: mensagem
+        }
+      ]);
 
-    // Reset after a short delay and close
-    setTimeout(() => {
-      setSuccess(false);
-      setNome('');
-      setEmail('');
-      setMunicipio('');
-      setTelefone('');
-      setSelectedServices([]);
-      setMensagem('');
-      onClose();
-    }, 3000);
+      if (error) throw error;
+
+      setSuccess(true);
+
+      // Reset after a short delay and close
+      setTimeout(() => {
+        setSuccess(false);
+        setNome('');
+        setEmail('');
+        setMunicipio('');
+        setTelefone('');
+        setSelectedServices([]);
+        setMensagem('');
+        onClose();
+      }, 3000);
+    } catch (err: any) {
+      setSubmitError(err.message || 'Erro ao enviar a solicitação.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -123,6 +134,11 @@ export default function BudgetModal() {
 
                       {/* Main Form */}
                       <form onSubmit={handleSubmit} className="space-y-5">
+                        {submitError && (
+                          <div className="bg-red-50 text-red-600 p-4 rounded-lg text-sm border border-red-200">
+                            {submitError}
+                          </div>
+                        )}
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                           <div className="space-y-1.5">
                             <label className="block font-mono text-[10px] uppercase tracking-wider text-on-surface font-bold">
@@ -241,9 +257,10 @@ export default function BudgetModal() {
                           </button>
                           <button
                             type="submit"
-                            className="bg-primary hover:bg-secondary text-on-primary py-2.5 px-6 rounded font-mono text-xs uppercase tracking-wider font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow hover:shadow-md"
+                            disabled={isSubmitting}
+                            className="bg-primary hover:bg-secondary text-on-primary py-2.5 px-6 rounded font-mono text-xs uppercase tracking-wider font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow hover:shadow-md disabled:opacity-70"
                           >
-                            <span>Enviar Solicitação</span>
+                            <span>{isSubmitting ? 'Enviando...' : 'Enviar Solicitação'}</span>
                             <Send className="w-3.5 h-3.5" />
                           </button>
                         </div>

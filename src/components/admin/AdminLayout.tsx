@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
-import { LayoutDashboard, FileText, Image as ImageIcon, MessageSquare, LogOut, Loader2 } from 'lucide-react';
+import { LayoutDashboard, FileText, Image as ImageIcon, MessageSquare, Users, LogOut, Loader2, Mail, ClipboardList } from 'lucide-react';
 
 export default function AdminLayout() {
   const navigate = useNavigate();
@@ -38,6 +38,9 @@ export default function AdminLayout() {
     { path: '/admin/pages', label: 'Páginas & Textos', icon: FileText },
     { path: '/admin/media', label: 'Mídia & Banners', icon: ImageIcon },
     { path: '/admin/testimonials', label: 'Depoimentos', icon: MessageSquare },
+    { path: '/admin/team-actions', label: 'Workshops e Treinamentos', icon: Users },
+    { path: '/admin/contacts', label: 'Mensagens', icon: Mail },
+    { path: '/admin/budgets', label: 'Orçamentos', icon: ClipboardList },
   ];
 
   return (

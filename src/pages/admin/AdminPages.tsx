@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { supabase } from '../../lib/supabase';
-import { FileText, Edit, Plus, Trash2, Loader2 } from 'lucide-react';
+import { FileText, Edit, Loader2 } from 'lucide-react';
+import AdminContentEditorModal from '../../components/admin/AdminContentEditorModal';
 
 export default function AdminPages() {
   const [pages, setPages] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [editingPage, setEditingPage] = useState<any>(null);
 
   useEffect(() => {
     fetchPages();
@@ -36,12 +38,8 @@ export default function AdminPages() {
             <FileText className="w-6 h-6 text-secondary" />
             Páginas & Textos
           </h1>
-          <p className="text-sm text-on-surface-variant mt-1">Gerencie os conteúdos dinâmicos e páginas do site.</p>
+          <p className="text-sm text-on-surface-variant mt-1">Gerencie os textos e conteúdos das seções já existentes no site.</p>
         </div>
-        <button className="bg-primary hover:bg-secondary text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 transition-colors cursor-pointer">
-          <Plus className="w-4 h-4" />
-          Nova Página
-        </button>
       </div>
 
       <div className="bg-white border border-outline-variant rounded-xl overflow-hidden shadow-sm">
@@ -70,11 +68,12 @@ export default function AdminPages() {
                     </span>
                   </td>
                   <td className="p-4 flex justify-end gap-2">
-                    <button className="p-2 text-blue-600 hover:bg-blue-50 rounded transition-colors" title="Editar">
+                    <button 
+                      onClick={() => setEditingPage(page)}
+                      className="p-2 text-blue-600 hover:bg-blue-50 rounded transition-colors" 
+                      title="Editar Textos"
+                    >
                       <Edit className="w-4 h-4" />
-                    </button>
-                    <button className="p-2 text-red-600 hover:bg-red-50 rounded transition-colors" title="Excluir">
-                      <Trash2 className="w-4 h-4" />
                     </button>
                   </td>
                 </tr>
@@ -89,6 +88,13 @@ export default function AdminPages() {
           </table>
         )}
       </div>
+
+      {editingPage && (
+        <AdminContentEditorModal 
+          page={editingPage} 
+          onClose={() => setEditingPage(null)} 
+        />
+      )}
     </div>
   );
 }

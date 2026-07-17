@@ -13,8 +13,10 @@ export default function Header() {
     { path: '/', label: 'Home' },
     { path: '/servicos', label: 'Serviços' },
     { path: '/tecnologia', label: 'Tecnologia' },
-    { path: '/sobre', label: 'Sobre Nós' },
     { path: '/contato', label: 'Contato' },
+    { path: '/acoes-equipe', label: 'Workshops e Treinamentos' },
+    { path: '/feedback', label: 'Avaliações' },
+    { path: '/sobre', label: 'Sobre Nós' },
   ];
 
   const handleNavClick = (path: string) => {

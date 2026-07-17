@@ -1,10 +1,35 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { faqs } from '../data';
-import { ShieldCheck, Target, Heart, Award, ChevronDown, ChevronUp } from 'lucide-react';
+import { supabase } from '../lib/supabase';
+import { ShieldCheck, Target, Heart, Award, ChevronDown, ChevronUp, Loader2 } from 'lucide-react';
 
 export default function About() {
   const [openFaqIdx, setOpenFaqIdx] = useState<number | null>(null);
+  const [faqs, setFaqs] = useState<{question: string, answer: string}[]>([]);
+  const [loadingFaqs, setLoadingFaqs] = useState(true);
+
+  useEffect(() => {
+    const fetchFaqs = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('content_blocks')
+          .select('content')
+          .eq('section_name', 'faqs')
+          .single();
+          
+        if (error) throw error;
+        if (data && data.content) {
+          setFaqs(data.content as {question: string, answer: string}[]);
+        }
+      } catch (error) {
+        console.error('Error fetching FAQs:', error);
+      } finally {
+        setLoadingFaqs(false);
+      }
+    };
+    
+    fetchFaqs();
+  }, []);
 
   const toggleFaq = (idx: number) => {
     setOpenFaqIdx(openFaqIdx === idx ? null : idx);
@@ -119,44 +144,50 @@ export default function About() {
           </p>
         </div>
 
-        <div className="space-y-3 max-w-4xl mx-auto pt-4">
-          {faqs.map((faq, idx) => {
-            const isOpen = openFaqIdx === idx;
-            return (
-              <div 
-                key={idx} 
-                className="bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden transition-all shadow-sm"
-              >
-                <button
-                  onClick={() => toggleFaq(idx)}
-                  className="w-full flex justify-between items-center px-5 py-4 text-left font-sans font-bold text-primary text-sm md:text-base hover:bg-surface-container-low/50 transition-colors"
+        {loadingFaqs ? (
+          <div className="flex justify-center py-10">
+            <Loader2 className="w-8 h-8 animate-spin text-secondary" />
+          </div>
+        ) : (
+          <div className="space-y-3 max-w-4xl mx-auto pt-4">
+            {faqs.map((faq, idx) => {
+              const isOpen = openFaqIdx === idx;
+              return (
+                <div 
+                  key={idx} 
+                  className="bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden transition-all shadow-sm"
                 >
-                  <span>{faq.question}</span>
-                  {isOpen ? (
-                    <ChevronUp className="w-5 h-5 text-secondary shrink-0" />
-                  ) : (
-                    <ChevronDown className="w-5 h-5 text-on-surface-variant shrink-0" />
-                  )}
-                </button>
-                
-                <AnimatePresence initial={false}>
-                  {isOpen && (
-                    <motion.div
-                      initial={{ height: 0 }}
-                      animate={{ height: 'auto' }}
-                      exit={{ height: 0 }}
-                      className="overflow-hidden bg-surface-container-lowest"
-                    >
-                      <div className="p-5 pt-0 text-sm text-on-surface-variant leading-relaxed border-t border-primary/5 font-sans">
-                        {faq.answer}
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-            );
-          })}
-        </div>
+                  <button
+                    onClick={() => toggleFaq(idx)}
+                    className="w-full flex justify-between items-center px-5 py-4 text-left font-sans font-bold text-primary text-sm md:text-base hover:bg-surface-container-low/50 transition-colors"
+                  >
+                    <span>{faq.question}</span>
+                    {isOpen ? (
+                      <ChevronUp className="w-5 h-5 text-secondary shrink-0" />
+                    ) : (
+                      <ChevronDown className="w-5 h-5 text-on-surface-variant shrink-0" />
+                    )}
+                  </button>
+                  
+                  <AnimatePresence initial={false}>
+                    {isOpen && (
+                      <motion.div
+                        initial={{ height: 0 }}
+                        animate={{ height: 'auto' }}
+                        exit={{ height: 0 }}
+                        className="overflow-hidden bg-surface-container-lowest"
+                      >
+                        <div className="p-5 pt-0 text-sm text-on-surface-variant leading-relaxed border-t border-primary/5 font-sans">
+                          {faq.answer}
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              );
+            })}
+          </div>
+        )}
       </section>
     </motion.div>
   );
