@@ -12,6 +12,7 @@ export default function BudgetModal() {
   const [nome, setNome] = useState('');
   const [email, setEmail] = useState('');
   const [municipio, setMunicipio] = useState('');
+  const [uf, setUf] = useState('');
   const [telefone, setTelefone] = useState('');
   const [selectedServices, setSelectedServices] = useState<string[]>([]);
   const [mensagem, setMensagem] = useState('');
@@ -37,7 +38,7 @@ export default function BudgetModal() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!nome || !email || !municipio || !telefone) return;
+    if (!nome || !email || !municipio || !uf || !telefone) return;
 
     setIsSubmitting(true);
     setSubmitError('');
@@ -47,7 +48,7 @@ export default function BudgetModal() {
         {
           nome,
           email,
-          municipio,
+          municipio: `${municipio} - ${uf}`,
           telefone,
           servicos_interesse: selectedServices,
           mensagem_adicional: mensagem
@@ -64,6 +65,7 @@ export default function BudgetModal() {
         setNome('');
         setEmail('');
         setMunicipio('');
+        setUf('');
         setTelefone('');
         setSelectedServices([]);
         setMensagem('');
@@ -173,18 +175,37 @@ export default function BudgetModal() {
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                           <div className="space-y-1.5">
                             <label className="block font-mono text-[10px] uppercase tracking-wider text-on-surface font-bold">
-                              Município / UF
+                              Município e UF
                             </label>
-                            <div className="relative">
-                              <input
-                                type="text"
-                                value={municipio}
-                                onChange={(e) => setMunicipio(e.target.value)}
-                                className="w-full bg-surface-container-low border border-outline-variant rounded pl-10 pr-3 py-2.5 font-sans text-sm text-on-surface focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary transition-all"
-                                placeholder="Cidade - Estado"
+                            <div className="flex gap-2">
+                              <div className="relative flex-1">
+                                <input
+                                  type="text"
+                                  value={municipio}
+                                  onChange={(e) => setMunicipio(e.target.value)}
+                                  className="w-full bg-surface-container-low border border-outline-variant rounded pl-10 pr-3 py-2.5 font-sans text-sm text-on-surface focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary transition-all"
+                                  placeholder="Sua Cidade"
+                                  required
+                                />
+                                <Building className="w-4 h-4 text-on-surface-variant/70 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                              </div>
+                              <select
+                                value={uf}
+                                onChange={(e) => setUf(e.target.value)}
+                                className="w-[72px] shrink-0 bg-surface-container-low border border-outline-variant rounded px-2 py-2.5 font-sans text-sm text-on-surface focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary transition-all"
                                 required
-                              />
-                              <Building className="w-4 h-4 text-on-surface-variant/70 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                              >
+                                <option value="" disabled>UF</option>
+                                <option value="AC">AC</option><option value="AL">AL</option><option value="AP">AP</option>
+                                <option value="AM">AM</option><option value="BA">BA</option><option value="CE">CE</option>
+                                <option value="DF">DF</option><option value="ES">ES</option><option value="GO">GO</option>
+                                <option value="MA">MA</option><option value="MT">MT</option><option value="MS">MS</option>
+                                <option value="MG">MG</option><option value="PA">PA</option><option value="PB">PB</option>
+                                <option value="PR">PR</option><option value="PE">PE</option><option value="PI">PI</option>
+                                <option value="RJ">RJ</option><option value="RN">RN</option><option value="RS">RS</option>
+                                <option value="RO">RO</option><option value="RR">RR</option><option value="SC">SC</option>
+                                <option value="SP">SP</option><option value="SE">SE</option><option value="TO">TO</option>
+                              </select>
                             </div>
                           </div>
 
