@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
-import { ClipboardList, Search, Loader2, Calendar, Phone, Mail, FileText, CheckCircle, Clock, XCircle, FileDown, Save, X } from 'lucide-react';
+import { ClipboardList, Search, Loader2, Calendar, Phone, Mail, FileText, CheckCircle, Clock, XCircle, FileDown, Save, X, Trash2 } from 'lucide-react';
 
 interface BudgetRequest {
   id: string;
@@ -43,6 +43,26 @@ export default function AdminBudgets() {
       console.error('Error fetching budgets:', err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDeleteBudget = async (id: string, name: string) => {
+    if (!window.confirm(`Tem certeza que deseja excluir a solicitação de ${name}? Esta ação não pode ser desfeita.`)) {
+      return;
+    }
+    
+    try {
+      const { error } = await supabase
+        .from('budget_requests')
+        .delete()
+        .eq('id', id);
+        
+      if (error) throw error;
+      
+      setBudgets(budgets.filter(b => b.id !== id));
+    } catch (err: any) {
+      console.error('Error deleting budget:', err);
+      alert('Erro ao excluir solicitação: ' + err.message);
     }
   };
 
@@ -178,13 +198,22 @@ export default function AdminBudgets() {
                         {formatDate(budget.created_at)}
                       </div>
                       
-                      <button 
-                        onClick={() => handleOpenEvaluation(budget)}
-                        className="bg-primary hover:bg-secondary text-white text-xs font-bold px-3 py-1.5 rounded flex items-center gap-1.5 transition-colors shadow-sm"
-                      >
-                        <FileText className="w-3.5 h-3.5" />
-                        Avaliar
-                      </button>
+                      <div className="flex gap-2">
+                        <button 
+                          onClick={() => handleDeleteBudget(budget.id, budget.nome)}
+                          className="bg-surface hover:bg-red-50 text-red-500 border border-outline-variant hover:border-red-200 p-1.5 rounded transition-colors shadow-sm flex items-center justify-center"
+                          title="Excluir solicitação"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                        <button 
+                          onClick={() => handleOpenEvaluation(budget)}
+                          className="bg-primary hover:bg-secondary text-white text-xs font-bold px-3 py-1.5 rounded flex items-center gap-1.5 transition-colors shadow-sm"
+                        >
+                          <FileText className="w-3.5 h-3.5" />
+                          Avaliar
+                        </button>
+                      </div>
                     </div>
                   </div>
                   
