@@ -23,7 +23,8 @@ export default function BudgetModal() {
     "Estratificação de Risco",
     "Reconhecimento Geográfico (RG)",
     "Monitoramento com Ovitrampas",
-    "Capacitação e Treinamento (ACE)"
+    "Capacitação e Treinamento (ACE)",
+    "SisEndemias (App)"
   ];
 
   const handleCheckboxChange = (service: string) => {
