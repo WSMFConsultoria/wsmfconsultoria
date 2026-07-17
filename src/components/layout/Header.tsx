@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Menu, X, ClipboardList } from 'lucide-react';
 import { useModalStore } from '../../store/useModalStore';
@@ -8,6 +8,17 @@ export default function Header() {
   const location = useLocation();
   const navigate = useNavigate();
   const openBudgetModal = useModalStore((state) => state.openBudgetModal);
+
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [mobileMenuOpen]);
 
   const navItems = [
     { path: '/', label: 'Home' },
@@ -81,18 +92,45 @@ export default function Header() {
         </button>
       </div>
 
-      {/* Mobile Navigation Dropdown */}
+      {/* Mobile Navigation Drawer Backdrop */}
       {mobileMenuOpen && (
-        <div className="md:hidden border-t border-primary/10 dark:border-white/10 bg-surface/95 dark:bg-primary-container/95 backdrop-blur-md absolute w-full left-0 py-4 px-6 space-y-3 shadow-lg z-50 animate-in fade-in slide-in-from-top-5 duration-200" id="mobile-nav">
+        <div 
+          className="md:hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-[60] animate-in fade-in duration-200"
+          onClick={() => setMobileMenuOpen(false)}
+          aria-hidden="true"
+        />
+      )}
+
+      {/* Mobile Navigation Drawer */}
+      <div 
+        className={`md:hidden fixed top-0 right-0 h-full w-[85%] max-w-sm bg-surface dark:bg-primary-container shadow-2xl z-[70] transform transition-transform duration-300 ease-in-out flex flex-col ${
+          mobileMenuOpen ? 'translate-x-0' : 'translate-x-full'
+        }`}
+        id="mobile-nav"
+      >
+        <div className="flex items-center justify-between px-6 py-4 border-b border-primary/10 dark:border-white/10 shrink-0">
+          <div className="font-sans text-xl font-extrabold text-primary dark:text-inverse-primary tracking-tighter">
+            WSMF
+          </div>
+          <button
+            onClick={() => setMobileMenuOpen(false)}
+            className="p-2 text-primary dark:text-inverse-primary focus:outline-none rounded-full hover:bg-primary/5 dark:hover:bg-white/5 transition-colors"
+            aria-label="Fechar menu"
+          >
+            <X className="w-6 h-6" />
+          </button>
+        </div>
+
+        <div className="flex-1 overflow-y-auto py-6 px-6 space-y-2">
           {navItems.map((item) => {
             const isActive = location.pathname === item.path;
             return (
               <button
                 key={item.path}
                 onClick={() => handleNavClick(item.path)}
-                className={`block w-full text-left font-mono text-xs uppercase tracking-wider py-3 px-4 rounded-md transition-all ${
+                className={`block w-full text-left font-mono text-sm uppercase tracking-wider py-4 px-4 rounded-xl transition-all ${
                   isActive
-                    ? 'text-white bg-secondary dark:bg-secondary-container font-bold'
+                    ? 'text-white bg-secondary dark:bg-secondary-container font-bold shadow-md'
                     : 'text-slate-600 dark:text-slate-300 hover:bg-surface-container-low dark:hover:bg-white/10 hover:text-primary dark:hover:text-white'
                 }`}
               >
@@ -100,20 +138,21 @@ export default function Header() {
               </button>
             );
           })}
-          <div className="pt-3 border-t border-primary/10 dark:border-white/10">
-            <button
-              onClick={() => {
-                setMobileMenuOpen(false);
-                openBudgetModal();
-              }}
-              className="flex items-center justify-center gap-2 w-full bg-primary dark:bg-secondary text-white hover:bg-secondary transition-colors py-3 rounded text-xs font-mono uppercase tracking-wider font-bold shadow"
-            >
-              <ClipboardList className="w-4 h-4" />
-              Solicitar Orçamento
-            </button>
-          </div>
         </div>
-      )}
+
+        <div className="p-6 border-t border-primary/10 dark:border-white/10 shrink-0 bg-surface-container-low/30 dark:bg-primary-container/80">
+          <button
+            onClick={() => {
+              setMobileMenuOpen(false);
+              openBudgetModal();
+            }}
+            className="flex items-center justify-center gap-2 w-full bg-primary dark:bg-secondary text-white hover:bg-secondary transition-colors py-4 rounded-xl text-sm font-mono uppercase tracking-wider font-bold shadow-lg hover:shadow-xl active:scale-[0.98]"
+          >
+            <ClipboardList className="w-5 h-5" />
+            Solicitar Orçamento
+          </button>
+        </div>
+      </div>
     </header>
   );
 }

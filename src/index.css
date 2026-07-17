@@ -34,3 +34,32 @@
                       radial-gradient(circle at bottom left, #002147 0%, transparent 50%);
   }
 }
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  
+  .print-section, .print-section * {
+    visibility: visible;
+  }
+  
+  .print-section {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    background-color: white !important;
+    color: black !important;
+  }
+
+  .no-print, .no-print * {
+    display: none !important;
+    visibility: hidden !important;
+  }
+
+  @page {
+    margin: 10mm;
+    size: auto;
+  }
+}
