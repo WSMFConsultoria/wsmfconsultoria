@@ -113,7 +113,7 @@ export default function AdminBudgets() {
                     </div>
                   </div>
 
-                  <div className="pt-4 border-t border-outline-variant pl-2">
+                  <div className="pt-4 border-t border-outline-variant pl-2 relative">
                     <p className="text-xs font-mono uppercase tracking-wider text-on-surface-variant font-bold mb-2">Serviços de Interesse:</p>
                     <div className="flex flex-wrap gap-2 mb-4">
                       {budget.servicos_interesse && budget.servicos_interesse.length > 0 ? (
@@ -135,6 +135,19 @@ export default function AdminBudgets() {
                         </p>
                       </div>
                     )}
+                    
+                    <button 
+                      onClick={async () => {
+                        if (window.confirm('Excluir esta solicitação de orçamento?')) {
+                          const { error } = await supabase.from('budget_requests').delete().eq('id', budget.id);
+                          if (!error) fetchBudgets();
+                        }
+                      }}
+                      className="absolute bottom-0 right-0 p-2 text-red-500 hover:bg-red-50 rounded transition-colors"
+                      title="Excluir Orçamento"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
+                    </button>
                   </div>
                 </div>
               ))}
