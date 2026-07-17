@@ -97,20 +97,20 @@ export default function BudgetModal() {
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.95, opacity: 0, y: 20 }}
               transition={{ type: 'spring', duration: 0.5 }}
-              className="w-full max-w-2xl bg-surface-container-lowest border border-outline-variant rounded-2xl shadow-2xl relative overflow-hidden flex flex-col"
+              className="w-full max-w-2xl bg-surface-container-lowest border border-outline-variant rounded-2xl shadow-2xl relative overflow-hidden flex flex-col max-h-[95vh]"
             >
               <div className="absolute top-0 left-0 w-full h-[4px] bg-secondary"></div>
 
               {/* Close Button */}
               <button
                 onClick={onClose}
-                className="absolute top-4 right-4 p-2 text-on-surface-variant hover:text-primary hover:bg-surface-container-low rounded-full transition-colors z-20 cursor-pointer"
+                className="absolute top-4 right-4 p-2 text-on-surface-variant hover:text-primary hover:bg-surface-container-low bg-surface-container-lowest/80 backdrop-blur-md rounded-full transition-colors z-20 cursor-pointer shadow-sm"
                 aria-label="Fechar modal"
               >
                 <X className="w-5 h-5" />
               </button>
 
-              <div className="p-6 md:p-8">
+              <div className="p-6 md:p-8 overflow-y-auto flex-1">
                 <AnimatePresence mode="wait">
                   {!success ? (
                     <motion.div
