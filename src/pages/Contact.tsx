@@ -11,6 +11,18 @@ const DEFAULT_HEADER = {
 };
 
 export default function Contact() {
+  const formatInstagramUrl = (url: string) => {
+    if (!url) return '';
+    if (url.startsWith('http')) return url;
+    return `https://instagram.com/${url.replace('@', '').trim()}`;
+  };
+
+  const formatWhatsappUrl = (url: string) => {
+    if (!url) return '';
+    if (url.startsWith('http')) return url;
+    return `https://wa.me/${url.replace(/\D/g, '')}`;
+  };
+
   const [nome, setNome] = useState('');
   const [email, setEmail] = useState('');
   const [assunto, setAssunto] = useState('');
@@ -180,12 +192,32 @@ export default function Contact() {
                   <div className="w-12 h-12 rounded-xl bg-surface-container flex items-center justify-center text-secondary group-hover:bg-secondary group-hover:text-on-secondary transition-colors duration-300">
                     <AtSign className="w-5 h-5" />
                   </div>
-                  <div>
+                  <div className="min-w-0">
                     <h3 className="font-mono text-[10px] uppercase tracking-widest text-on-surface-variant font-bold">Instagram</h3>
-                    <p className="font-sans text-base md:text-lg font-bold text-primary mt-0.5">{contactInfo.instagram}</p>
+                    <a href={formatInstagramUrl(contactInfo.instagram_url)} target="_blank" rel="noopener noreferrer" className="font-sans text-base md:text-lg font-bold text-primary mt-0.5 hover:underline truncate block">
+                      Acessar Perfil
+                    </a>
                   </div>
                 </div>
               </div>
+
+              {/* WhatsApp Card */}
+              {contactInfo.whatsapp_url && (
+                <div className="bg-surface border border-outline-variant rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
+                  <div className="absolute top-0 left-0 w-full h-[3px] bg-[#25D366]"></div>
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-xl bg-surface-container flex items-center justify-center text-[#25D366] group-hover:bg-[#25D366] group-hover:text-white transition-colors duration-300">
+                      <Phone className="w-5 h-5" />
+                    </div>
+                    <div className="min-w-0">
+                      <h3 className="font-mono text-[10px] uppercase tracking-widest text-on-surface-variant font-bold">WhatsApp</h3>
+                      <a href={formatWhatsappUrl(contactInfo.whatsapp_url)} target="_blank" rel="noopener noreferrer" className="font-sans text-base md:text-lg font-bold text-primary mt-0.5 hover:underline truncate block">
+                        Falar no WhatsApp
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              )}
             </>
           )}
         </div>

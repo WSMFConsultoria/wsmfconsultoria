@@ -136,19 +136,18 @@ export default function AdminContentEditorModal({ page, block, onClose }: AdminC
 
     const sectionName = block.section_name;
 
-    // Contact Info Editor
     if (sectionName === 'contact_info') {
       return (
         <div className="space-y-4">
-          {['email', 'phone', 'address', 'instagram', 'coords'].map(field => (
+          {['email', 'phone', 'whatsapp_url', 'instagram_url', 'address', 'coords'].map(field => (
             <div key={field}>
-              <label className="block text-xs font-bold text-primary mb-1.5 uppercase">{field}</label>
+              <label className="block text-xs font-bold text-primary mb-1.5 uppercase">{field.replace('_url', '')}</label>
               <input
                 type="text"
                 value={parsedContent?.[field] || ''}
                 onChange={(e) => updateField(field, e.target.value)}
                 className="w-full px-4 py-2.5 border border-outline-variant rounded-lg text-sm focus:border-secondary focus:ring-1 focus:ring-secondary transition-all"
-                placeholder={`Insira ${field}...`}
+                placeholder={`Insira ${field.replace('_url', '')}...`}
               />
             </div>
           ))}
