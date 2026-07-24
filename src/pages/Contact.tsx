@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Mail, Phone, MapPin, AtSign, Send, CheckCircle2, Map, Loader2 } from 'lucide-react';
+import { Mail, Phone, MapPin, Send, CheckCircle2, Map, Loader2 } from 'lucide-react';
 import { ContactMessage } from '../types';
 import { supabase } from '../lib/supabase';
+import InstagramOfficialIcon from '../components/ui/InstagramOfficialIcon';
 
 const DEFAULT_HEADER = {
   title: 'Entre em Contato',
@@ -189,8 +190,8 @@ export default function Contact() {
               <div className="bg-surface border border-outline-variant rounded-xl p-5 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
                 <div className="absolute top-0 left-0 w-full h-[3px] bg-secondary"></div>
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-xl bg-surface-container flex items-center justify-center text-secondary group-hover:bg-secondary group-hover:text-on-secondary transition-colors duration-300">
-                    <AtSign className="w-5 h-5" />
+                  <div className="w-12 h-12 rounded-xl bg-surface-container flex items-center justify-center group-hover:scale-105 transition-transform duration-300">
+                    <InstagramOfficialIcon className="w-7 h-7" />
                   </div>
                   <div className="min-w-0">
                     <h3 className="font-mono text-[10px] uppercase tracking-widest text-on-surface-variant font-bold">Instagram</h3>
