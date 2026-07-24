@@ -16,32 +16,43 @@ import {
 } from 'lucide-react';
 import { useModalStore } from '../store/useModalStore';
 
+const DEFAULT_HEADER = {
+  badge: 'Soluções Integradas',
+  title: 'Nossos Serviços',
+  description: 'Oferecemos soluções metodológicas robustas e assessoria completa para secretarias municipais de saúde, viabilizando decisões pautadas em evidências epidemiológicas.',
+  cta_title: 'Deseja customizar os serviços para o seu município?',
+  cta_description: 'Nossa assessoria técnica analisa o histórico epidemiológico, quantitativo populacional e territorial para dimensionar a proposta ideal.'
+};
+
 export default function Services() {
   const openBudgetModal = useModalStore(state => state.openBudgetModal);
   const [servicesData, setServicesData] = useState<Service[]>([]);
+  const [header, setHeader] = useState(DEFAULT_HEADER);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchServices = async () => {
+    const fetchContent = async () => {
       try {
         const { data, error } = await supabase
           .from('content_blocks')
-          .select('content')
-          .eq('section_name', 'services_data')
-          .single();
+          .select('section_name, content')
+          .in('section_name', ['services_data', 'services_header']);
           
         if (error) throw error;
-        if (data && data.content) {
-          setServicesData(data.content as Service[]);
+        if (data) {
+          data.forEach(block => {
+            if (block.section_name === 'services_data' && block.content) setServicesData(block.content as Service[]);
+            if (block.section_name === 'services_header' && block.content) setHeader({ ...DEFAULT_HEADER, ...block.content });
+          });
         }
       } catch (error) {
-        console.error('Error fetching services:', error);
+        console.error('Error fetching services content:', error);
       } finally {
         setLoading(false);
       }
     };
     
-    fetchServices();
+    fetchContent();
   }, []);
 
   // Map string icon names to Lucide icon components
@@ -75,13 +86,13 @@ export default function Services() {
       {/* Header section */}
       <header className="text-center md:text-left space-y-4">
         <div className="inline-block bg-secondary/10 text-secondary font-mono text-[10px] uppercase tracking-widest px-3 py-1 rounded-full">
-          Soluções Integradas
+          {header.badge}
         </div>
         <h1 className="font-sans text-3xl md:text-4xl font-extrabold text-primary tracking-tight">
-          Nossos Serviços
+          {header.title}
         </h1>
         <p className="font-sans text-base md:text-lg text-on-surface-variant max-w-2xl leading-relaxed">
-          Oferecemos soluções metodológicas robustas e assessoria completa para secretarias municipais de saúde, viabilizando decisões pautadas em evidências epidemiológicas.
+          {header.description}
         </p>
       </header>
 
@@ -288,10 +299,10 @@ export default function Services() {
       >
         <div className="space-y-2 text-center md:text-left">
           <h3 className="font-sans text-lg md:text-xl font-bold text-primary">
-            Deseja customizar os serviços para o seu município?
+            {header.cta_title}
           </h3>
           <p className="font-sans text-sm text-on-surface-variant max-w-xl leading-relaxed">
-            Nossa assessoria técnica analisa o histórico epidemiológico, quantitativo populacional e territorial para dimensionar a proposta ideal.
+            {header.cta_description}
           </p>
         </div>
         <button

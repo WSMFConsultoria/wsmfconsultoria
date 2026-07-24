@@ -62,3 +62,38 @@ export interface TeamAction {
   created_at: string;
   updated_at: string;
 }
+
+// ==========================================
+// Admin CMS Types
+// ==========================================
+
+export interface Page {
+  id: string;
+  slug: string;
+  title: string;
+  meta_description?: string;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ContentBlock {
+  id: string;
+  page_id: string;
+  section_name: string;
+  content_type: string;
+  content: any;
+  order_index: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface MediaItem {
+  id: string;
+  file_name: string;
+  file_url: string;
+  file_type: string;
+  bucket_path: string;
+  uploaded_by?: string;
+  created_at: string;
+}

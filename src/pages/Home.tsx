@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'motion/react';
+import { supabase } from '../lib/supabase';
 import { 
   ArrowRight, 
   ShieldCheck, 
@@ -10,21 +11,78 @@ import {
   Cpu, 
   CheckCircle, 
   Activity, 
-  HeartPulse 
+  HeartPulse,
+  Loader2
 } from 'lucide-react';
 import { useModalStore } from '../store/useModalStore';
+
+// Default content as fallback if DB has no data yet
+const DEFAULT_HERO = {
+  badge: 'WSMF Gestão em Saúde Consultoria Ltda.',
+  title_line1: 'PORTFÓLIO',
+  title_line2: 'INSTITUCIONAL',
+  description: 'Soluções Inteligentes em Vigilância Epidemiológica, Mapeamento de Risco e Controle Eficiente de Endemias.',
+  image_url: 'https://lh3.googleusercontent.com/aida-public/AB6AXuAERoNjKBmijw-0AB6VkFoSgYq2D0sLiYqaBTMEjBmSDc9PyNUAXQYrbv2WmOz2LV-VZhHAeAt3dd62fvfp74u-NatiIkA2JPfkiCTc9ESbS3302C4uRrXlHtuVLSmztoD-t81p0PdF9D2T0WanjJbLRqqlKTGFZdMjFvoRFF7Yr2TobZ3oSlUxVWyAWJQvkgmMTAxy3JHAFIvJMvFmIpniI5v55wkpSEKUVSipwr7XaHzRzmWTF7-WG9nx2Setrsutn51TgoWSLuA',
+  cta_primary: 'Conheça a Consultoria',
+  cta_secondary: 'Fale Conosco',
+};
+
+const DEFAULT_ABOUT = {
+  title: 'QUEM SOMOS',
+  description: 'A WSMF Gestão em Saúde é uma consultoria altamente especializada em oferecer suporte técnico, operacional e tecnológico para secretarias de saúde no combate de endemias. Nosso principal propósito é transformar dados coletados em campo em estratégias integradas de prevenção, capacitando gestores e equipes para uma atuação rápida, precisa e altamente eficiente no controle de vetores e zoonoses.',
+  stat1_title: 'Dados em Estratégia',
+  stat1_desc: 'Análise epidemiológica avançada aplicada.',
+  stat2_title: 'Capacitação',
+  stat2_desc: 'Treinamento prático de equipes municipais.',
+};
+
+const DEFAULT_TEASERS = {
+  section_title: 'Eixos de Atuação',
+  section_description: 'Integramos metodologias consolidadas no setor público com tecnologia de ponta para estruturar a vigilância ativa em seu município.',
+  teaser1_title: 'Nossos Serviços',
+  teaser1_description: 'Oferecemos assessoria estratégica contínua, incluindo diagnóstico epidemiológico municipal, estruturação de planos de contingência técnica, geoprocessamento inteligente e análise detalhada para secretarias de saúde.',
+  teaser1_badge: 'Consultoria Técnica',
+  teaser1_image_url: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBtlHskb0S5xzXmjxX8tjrfeZWqvs0311hfv7XDWq9n1bkVIHehrgMjeSXazcDS-DiY-aCbRis9BGwdO618uKwN0x2n0HqqjFrlfqmX3rlsjgrXFx8f-rDsrO2MbFDT7f74coI0W2j2daBH2S1Noj2ijePlbPAVUCgfpYZ8HzxLWk2nLlaiJomOnZHlg8Tb6Uw-d4287g3tc6vV5i0DQ_gwvfIez6d6WbBh0C-VguAUmuBz4fKo1Bsqmdgo9MArIjEl3ISWyvrJ8mQ',
+  teaser2_title: 'Tecnologia SisEndemias',
+  teaser2_description: 'Implementamos sistemas integrados e ferramentas exclusivas de mapeamento de vetores em campo. Otimizamos a comunicação das equipes de controle de vetores com a central técnica do município de forma inovadora.',
+  teaser2_badge: 'Inovação Digital',
+  teaser2_image_url: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBlM-D59DZoa8nLxk0lO6ppV9nLq11wrZPgP66y5DUSpb4gpbohjkleYlBkFQjD33XIfCRlpYVcES3q1QwWXHwbz4c_9ekiqP7JDk9r5qbwRNcPWnvHi9KZDDvMZh_Y6hWv1lwSzkHsk_ehVqybMpsiKM-EofZWqfydjdA6KZSVO8NWwH-NqHuYBgSL1yj3_FFuFGa2_icdX1BvBu0b_orIUdF1MEOrSTNYhB31NyISV-M5wOSAzOeY-z5f_AQs8dYt1EwhvtwUaGQ',
+};
 
 export default function Home() {
   const navigate = useNavigate();
   const openBudgetModal = useModalStore((state) => state.openBudgetModal);
+  const [hero, setHero] = useState(DEFAULT_HERO);
+  const [about, setAbout] = useState(DEFAULT_ABOUT);
+  const [teasers, setTeasers] = useState(DEFAULT_TEASERS);
+
+  useEffect(() => {
+    const fetchContent = async () => {
+      try {
+        const { data } = await supabase
+          .from('content_blocks')
+          .select('section_name, content')
+          .in('section_name', ['home_hero', 'home_about', 'home_teasers']);
+
+        if (data) {
+          data.forEach(block => {
+            if (block.section_name === 'home_hero' && block.content) setHero({ ...DEFAULT_HERO, ...block.content });
+            if (block.section_name === 'home_about' && block.content) setAbout({ ...DEFAULT_ABOUT, ...block.content });
+            if (block.section_name === 'home_teasers' && block.content) setTeasers({ ...DEFAULT_TEASERS, ...block.content });
+          });
+        }
+      } catch (err) {
+        console.error('Error fetching home content:', err);
+      }
+    };
+    fetchContent();
+  }, []);
 
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-      },
+      transition: { staggerChildren: 0.1 },
     },
   };
 
@@ -57,16 +115,16 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-6 py-20 lg:py-28 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center relative z-10">
           <motion.div variants={itemVariants} className="space-y-6">
             <div className="inline-block bg-primary-container text-inverse-primary font-mono text-[10px] md:text-xs uppercase tracking-widest px-4 py-1.5 rounded-full border border-inverse-primary/10 mb-2">
-              WSMF Gestão em Saúde Consultoria Ltda.
+              {hero.badge}
             </div>
             
             <h1 className="font-sans text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight text-white leading-tight">
-              PORTFÓLIO <br />
-              <span className="text-secondary-fixed-dim">INSTITUCIONAL</span>
+              {hero.title_line1} <br />
+              <span className="text-secondary-fixed-dim">{hero.title_line2}</span>
             </h1>
 
             <p className="font-sans text-lg md:text-xl text-primary-fixed-dim max-w-lg leading-relaxed">
-              Soluções Inteligentes em Vigilância Epidemiológica, Mapeamento de Risco e Controle Eficiente de Endemias.
+              {hero.description}
             </p>
 
             <div className="pt-4 flex flex-wrap gap-4">
@@ -74,14 +132,14 @@ export default function Home() {
                 onClick={() => navigate('/servicos')}
                 className="bg-secondary hover:bg-secondary-container text-on-secondary font-mono text-xs uppercase tracking-wider font-semibold px-6 py-3.5 rounded transition-all duration-200 shadow hover:shadow-md cursor-pointer flex items-center gap-2"
               >
-                Conheça a Consultoria
+                {hero.cta_primary}
                 <ArrowRight className="w-4 h-4" />
               </button>
               <button
                 onClick={() => navigate('/contato')}
                 className="border border-outline-variant hover:border-white text-on-primary font-mono text-xs uppercase tracking-wider font-semibold px-6 py-3.5 rounded hover:bg-white/5 transition-all cursor-pointer"
               >
-                Fale Conosco
+                {hero.cta_secondary}
               </button>
             </div>
           </motion.div>
@@ -94,7 +152,7 @@ export default function Home() {
             <img 
               alt="Agente de Combate às Endemias em campo utilizando tablet" 
               className="object-cover w-full h-full object-center hover:scale-105 transition-transform duration-700" 
-              src="https://lh3.googleusercontent.com/aida-public/AB6AXuAERoNjKBmijw-0AB6VkFoSgYq2D0sLiYqaBTMEjBmSDc9PyNUAXQYrbv2WmOz2LV-VZhHAeAt3dd62fvfp74u-NatiIkA2JPfkiCTc9ESbS3302C4uRrXlHtuVLSmztoD-t81p0PdF9D2T0WanjJbLRqqlKTGFZdMjFvoRFF7Yr2TobZ3oSlUxVWyAWJQvkgmMTAxy3JHAFIvJMvFmIpniI5v55wkpSEKUVSipwr7XaHzRzmWTF7-WG9nx2Setrsutn51TgoWSLuA"
+              src={hero.image_url}
               referrerPolicy="no-referrer"
             />
             {/* Tech Overlay lines */}
@@ -134,10 +192,10 @@ export default function Home() {
                 </div>
                 <div>
                   <h2 className="font-sans text-2xl md:text-3xl font-extrabold tracking-tight text-primary mb-4">
-                    QUEM SOMOS
+                    {about.title}
                   </h2>
                   <p className="font-sans text-base md:text-lg text-on-surface-variant leading-relaxed">
-                    A WSMF Gestão em Saúde é uma consultoria altamente especializada em oferecer suporte técnico, operacional e tecnológico para secretarias de saúde no combate de endemias. Nosso principal propósito é transformar dados coletados em campo em estratégias integradas de prevenção, capacitando gestores e equipes para uma atuação rápida, precisa e altamente eficiente no controle de vetores e zoonoses.
+                    {about.description}
                   </p>
                 </div>
               </div>
@@ -153,8 +211,8 @@ export default function Home() {
                   <LineChart className="w-6 h-6" />
                 </div>
                 <div>
-                  <h3 className="font-sans text-lg font-bold text-primary">Dados em Estratégia</h3>
-                  <p className="font-sans text-sm text-on-surface-variant mt-0.5">Análise epidemiológica avançada aplicada.</p>
+                  <h3 className="font-sans text-lg font-bold text-primary">{about.stat1_title}</h3>
+                  <p className="font-sans text-sm text-on-surface-variant mt-0.5">{about.stat1_desc}</p>
                 </div>
               </motion.div>
 
@@ -166,8 +224,8 @@ export default function Home() {
                   <Users className="w-6 h-6" />
                 </div>
                 <div>
-                  <h3 className="font-sans text-lg font-bold text-primary">Capacitação</h3>
-                  <p className="font-sans text-sm text-on-surface-variant mt-0.5">Treinamento prático de equipes municipais.</p>
+                  <h3 className="font-sans text-lg font-bold text-primary">{about.stat2_title}</h3>
+                  <p className="font-sans text-sm text-on-surface-variant mt-0.5">{about.stat2_desc}</p>
                 </div>
               </motion.div>
             </div>
@@ -179,9 +237,9 @@ export default function Home() {
       <section className="py-24 bg-surface-container-low border-y border-outline-variant/50">
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center mb-16 space-y-4">
-            <h2 className="font-sans text-3xl font-extrabold text-primary tracking-tight">Eixos de Atuação</h2>
+            <h2 className="font-sans text-3xl font-extrabold text-primary tracking-tight">{teasers.section_title}</h2>
             <p className="font-sans text-base md:text-lg text-on-surface-variant max-w-2xl mx-auto leading-relaxed">
-              Integramos metodologias consolidadas no setor público com tecnologia de ponta para estruturar a vigilância ativa em seu município.
+              {teasers.section_description}
             </p>
           </div>
 
@@ -195,17 +253,17 @@ export default function Home() {
                 <img 
                   className="object-cover w-full h-full opacity-85 group-hover:scale-105 transition-transform duration-500" 
                   alt="Planejamento estratégico de saúde" 
-                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuBtlHskb0S5xzXmjxX8tjrfeZWqvs0311hfv7XDWq9n1bkVIHehrgMjeSXazcDS-DiY-aCbRis9BGwdO618uKwN0x2n0HqqjFrlfqmX3rlsjgrXFx8f-rDsrO2MbFDT7f74coI0W2j2daBH2S1Noj2ijePlbPAVUCgfpYZ8HzxLWk2nLlaiJomOnZHlg8Tb6Uw-d4287g3tc6vV5i0DQ_gwvfIez6d6WbBh0C-VguAUmuBz4fKo1Bsqmdgo9MArIjEl3ISWyvrJ8mQ"
+                  src={teasers.teaser1_image_url}
                   referrerPolicy="no-referrer"
                 />
                 <div className="absolute bottom-4 left-4 bg-surface-container-lowest/95 backdrop-blur-sm px-3.5 py-1.5 rounded font-mono text-xs text-primary flex items-center gap-2 font-semibold shadow border border-outline-variant/30">
-                  <FileText className="w-4 h-4 text-secondary" /> Consultoria Técnica
+                  <FileText className="w-4 h-4 text-secondary" /> {teasers.teaser1_badge}
                 </div>
               </div>
               <div className="p-8 flex-1 flex flex-col">
-                <h3 className="font-sans text-xl font-bold text-primary mb-3">Nossos Serviços</h3>
+                <h3 className="font-sans text-xl font-bold text-primary mb-3">{teasers.teaser1_title}</h3>
                 <p className="font-sans text-sm text-on-surface-variant mb-6 flex-1 leading-relaxed">
-                  Oferecemos assessoria estratégica contínua, incluindo diagnóstico epidemiológico municipal, estruturação de planos de contingência técnica, geoprocessamento inteligente e análise detalhada para secretarias de saúde.
+                  {teasers.teaser1_description}
                 </p>
                 <button 
                   onClick={() => navigate('/servicos')}
@@ -226,17 +284,17 @@ export default function Home() {
                 <img 
                   className="object-cover w-full h-full opacity-80 group-hover:scale-105 transition-transform duration-500" 
                   alt="Dashboard tecnológico SisEndemias" 
-                  src="https://lh3.googleusercontent.com/aida-public/AB6AXuBlM-D59DZoa8nLxk0lO6ppV9nLq11wrZPgP66y5DUSpb4gpbohjkleYlBkFQjD33XIfCRlpYVcES3q1QwWXHwbz4c_9ekiqP7JDk9r5qbwRNcPWnvHi9KZDDvMZh_Y6hWv1lwSzkHsk_ehVqybMpsiKM-EofZWqfydjdA6KZSVO8NWwH-NqHuYBgSL1yj3_FFuFGa2_icdX1BvBu0b_orIUdF1MEOrSTNYhB31NyISV-M5wOSAzOeY-z5f_AQs8dYt1EwhvtwUaGQ"
+                  src={teasers.teaser2_image_url}
                   referrerPolicy="no-referrer"
                 />
                 <div className="absolute bottom-4 left-4 bg-surface-container-lowest/95 backdrop-blur-sm px-3.5 py-1.5 rounded font-mono text-xs text-primary flex items-center gap-2 font-semibold shadow border border-outline-variant/30">
-                  <Cpu className="w-4 h-4 text-secondary" /> Inovação Digital
+                  <Cpu className="w-4 h-4 text-secondary" /> {teasers.teaser2_badge}
                 </div>
               </div>
               <div className="p-8 flex-1 flex flex-col">
-                <h3 className="font-sans text-xl font-bold text-primary mb-3">Tecnologia SisEndemias</h3>
+                <h3 className="font-sans text-xl font-bold text-primary mb-3">{teasers.teaser2_title}</h3>
                 <p className="font-sans text-sm text-on-surface-variant mb-6 flex-1 leading-relaxed">
-                  Implementamos sistemas integrados e ferramentas exclusivas de mapeamento de vetores em campo. Otimizamos a comunicação das equipes de controle de vetores com a central técnica do município de forma inovadora.
+                  {teasers.teaser2_description}
                 </p>
                 <button 
                   onClick={() => navigate('/tecnologia')}

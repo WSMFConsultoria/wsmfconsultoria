@@ -4,6 +4,12 @@ import { Mail, Phone, MapPin, AtSign, Send, CheckCircle2, Map, Loader2 } from 'l
 import { ContactMessage } from '../types';
 import { supabase } from '../lib/supabase';
 
+const DEFAULT_HEADER = {
+  title: 'Entre em Contato',
+  description: 'A WSMF Gestão em Saúde Consultoria Ltda. está totalmente pronta para ser a parceria estratégica ideal do seu município na consolidação das diretrizes de saúde pública.',
+  map_image_url: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBG5fhH3OWC6n4XE5gbuS8i0uUUo71ROV8znmXorLfsd_57ieUxJgMzNP4Lq0dt1xg1erPpOJWNwkJkozHHVpUyUUNg8pkjSlloUsa-qPjYXBmClpF9-cJsLN3JnEHwpX28XQKCoI9wMZV5jHRhtSQA-mzmd-McC-OPWtH7BfNoEXRSkA8tol4qPT3v9kxEEpDVwPBjL-152JAH-EFkFFQQr-XYhH-xJ7hWYh58WnC4gz5WwPXkIyn25fWL7gTn_NwWIFrbaX35uEQ'
+};
+
 export default function Contact() {
   const [nome, setNome] = useState('');
   const [email, setEmail] = useState('');
@@ -14,29 +20,36 @@ export default function Contact() {
   const [submitSuccess, setSubmitSuccess] = useState(false);
 
   const [contactInfo, setContactInfo] = useState<any>(null);
+  const [headerInfo, setHeaderInfo] = useState<any>(DEFAULT_HEADER);
   const [loadingInfo, setLoadingInfo] = useState(true);
 
   useEffect(() => {
-    const fetchContactInfo = async () => {
+    const fetchContent = async () => {
       try {
         const { data, error } = await supabase
           .from('content_blocks')
-          .select('content')
-          .eq('section_name', 'contact_info')
-          .single();
+          .select('section_name, content')
+          .in('section_name', ['contact_info', 'contact_header']);
           
         if (error) throw error;
-        if (data && data.content) {
-          setContactInfo(data.content);
+        if (data) {
+          data.forEach(block => {
+            if (block.section_name === 'contact_info' && block.content) {
+              setContactInfo(block.content);
+            }
+            if (block.section_name === 'contact_header' && block.content) {
+              setHeaderInfo({ ...DEFAULT_HEADER, ...block.content });
+            }
+          });
         }
       } catch (error) {
-        console.error('Error fetching contact info:', error);
+        console.error('Error fetching contact content:', error);
       } finally {
         setLoadingInfo(false);
       }
     };
     
-    fetchContactInfo();
+    fetchContent();
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -98,9 +111,9 @@ export default function Contact() {
       <section className="bg-surface-container-lowest border border-outline-variant rounded-2xl p-8 relative overflow-hidden text-center md:text-left shadow-sm">
         <div className="absolute inset-0 bg-cover bg-center opacity-[0.02] pointer-events-none" style={{ backgroundImage: "url('https://lh3.googleusercontent.com/aida-public/AB6AXuDsjXJVMvRbrHt6ksXJWzsxPaY9fws4G4GKkDL_ALwZ-mFNOXAkRBitYaGH838W50tkXuuao84gfnY-FV1nnEw0TWjSrGtSqvhUW5h3Bi2Ml7LAe-_M2Qty8q9hGnYfnqE-utgnaarvTsfwb5iafn4xXyFeAgsa4Q1rysYo9QqfIq5FEpDP8v2sLozdl7N1GSMDuXFhnxReMCIJg_NfdTUQkMEEHOdr-sWBgrJqjaxO0-JlS5Vb3MPFmKnV_tRpM1hUKMbX2wMgTfE')" }}></div>
         <div className="relative z-10 max-w-3xl space-y-3">
-          <h1 className="font-sans text-3xl md:text-4xl font-extrabold text-primary tracking-tight">Entre em Contato</h1>
+          <h1 className="font-sans text-3xl md:text-4xl font-extrabold text-primary tracking-tight">{headerInfo.title}</h1>
           <p className="font-sans text-base md:text-lg text-on-surface-variant leading-relaxed">
-            A WSMF Gestão em Saúde Consultoria Ltda. está totalmente pronta para ser a parceria estratégica ideal do seu município na consolidação das diretrizes de saúde pública.
+            {headerInfo.description}
           </p>
         </div>
       </section>
@@ -289,7 +302,7 @@ export default function Contact() {
         </div>
         <div 
           className="absolute inset-0 bg-cover bg-center opacity-85 group-hover:scale-102 transition-transform duration-700" 
-          style={{ backgroundImage: "url('https://lh3.googleusercontent.com/aida-public/AB6AXuBG5fhH3OWC6n4XE5gbuS8i0uUUo71ROV8znmXorLfsd_57ieUxJgMzNP4Lq0dt1xg1erPpOJWNwkJkozHHVpUyUUNg8pkjSlloUsa-qPjYXBmClpF9-cJsLN3JnEHwpX28XQKCoI9wMZV5jHRhtSQA-mzmd-McC-OPWtH7BfNoEXRSkA8tol4qPT3v9kxEEpDVwPBjL-152JAH-EFkFFQQr-XYhH-xJ7hWYh58WnC4gz5WwPXkIyn25fWL7gTn_NwWIFrbaX35uEQ')" }}
+          style={{ backgroundImage: `url('${headerInfo.map_image_url}')` }}
           aria-label="Mapa de Santo Estevão - BA"
           referrerPolicy="no-referrer"
         ></div>

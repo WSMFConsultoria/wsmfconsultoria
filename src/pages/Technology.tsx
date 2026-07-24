@@ -11,31 +11,48 @@ import {
   Loader2
 } from 'lucide-react';
 
+const DEFAULT_HERO = {
+  badge: 'Tecnologia Proprietária',
+  title: 'SISTEMA SISENDEMIAS',
+  description: 'Uma solução tecnológica exclusiva para modernizar o trabalho de campo e agilizar a gestão administrativa, otimizando as atividades dos Agentes de Combate às Endemias (ACE).',
+  image_url: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBlM-D59DZoa8nLxk0lO6ppV9nLq11wrZPgP66y5DUSpb4gpbohjkleYlBkFQjD33XIfCRlpYVcES3q1QwWXHwbz4c_9ekiqP7JDk9r5qbwRNcPWnvHi9KZDDvMZh_Y6hWv1lwSzkHsk_ehVqybMpsiKM-EofZWqfydjdA6KZSVO8NWwH-NqHuYBgSL1yj3_FFuFGa2_icdX1BvBu0b_orIUdF1MEOrSTNYhB31NyISV-M5wOSAzOeY-z5f_AQs8dYt1EwhvtwUaGQ',
+  feature1_title: 'Coleta Híbrida',
+  feature1_desc: 'Funcionamento prático e seguro em modo online e offline.',
+  feature2_title: 'Sincronização Ativa',
+  feature2_desc: 'Dados atualizados automaticamente com o banco central.',
+  feature3_title: 'Integração MS',
+  feature3_desc: 'Agilidade no envio de informações ao Ministério da Saúde.',
+  feature4_title: 'Alta Confiabilidade',
+  feature4_desc: 'Mais eficiência nas ações de vigilância e controle de endemias.',
+  banner_image_url: '/banner-sisendemias.jpeg',
+};
+
 export default function Technology() {
   const [sisEndemiasSteps, setSisEndemiasSteps] = useState<FeatureStep[]>([]);
   const [loading, setLoading] = useState(true);
+  const [hero, setHero] = useState(DEFAULT_HERO);
 
   useEffect(() => {
-    const fetchSteps = async () => {
+    const fetchContent = async () => {
       try {
-        const { data, error } = await supabase
+        const { data } = await supabase
           .from('content_blocks')
-          .select('content')
-          .eq('section_name', 'sis_endemias_steps')
-          .single();
-          
-        if (error) throw error;
-        if (data && data.content) {
-          setSisEndemiasSteps(data.content as FeatureStep[]);
+          .select('section_name, content')
+          .in('section_name', ['sis_endemias_steps', 'tech_hero']);
+
+        if (data) {
+          data.forEach(block => {
+            if (block.section_name === 'sis_endemias_steps' && block.content) setSisEndemiasSteps(block.content as FeatureStep[]);
+            if (block.section_name === 'tech_hero' && block.content) setHero({ ...DEFAULT_HERO, ...block.content });
+          });
         }
       } catch (error) {
-        console.error('Error fetching steps:', error);
+        console.error('Error fetching tech content:', error);
       } finally {
         setLoading(false);
       }
     };
-    
-    fetchSteps();
+    fetchContent();
   }, []);
 
   const iconMap: { [key: string]: React.ComponentType<any> } = {
@@ -54,6 +71,8 @@ export default function Technology() {
     visible: { opacity: 1, y: 0, transition: { duration: 0.5 } }
   };
 
+  const featureIcons = [Wifi, RefreshCw, Database, CheckCircle2];
+
   return (
     <motion.div
       variants={containerVariants}
@@ -67,44 +86,30 @@ export default function Technology() {
         <div className="p-8 md:p-16 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center relative z-10">
           <div className="lg:col-span-7 space-y-6">
             <div className="inline-flex items-center gap-2 bg-secondary-container/10 border border-white/10 text-secondary-fixed-dim px-4 py-1.5 rounded-full font-mono text-xs uppercase tracking-wider">
-              Tecnologia Proprietária
+              {hero.badge}
             </div>
             <h1 className="font-sans text-3xl md:text-5xl font-extrabold uppercase tracking-tight text-white leading-tight">
-              SISTEMA SISENDEMIAS
+              {hero.title}
             </h1>
             <p className="font-sans text-base md:text-lg text-slate-200 leading-relaxed">
-              Uma solução tecnológica exclusiva para modernizar o trabalho de campo e agilizar a gestão administrativa, otimizando as atividades dos Agentes de Combate às Endemias (ACE).
+              {hero.description}
             </p>
             
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4">
-              <div className="flex items-start gap-3 bg-white/5 p-4 rounded-xl border border-white/10 hover:bg-white/10 transition-colors">
-                <Wifi className="w-6 h-6 text-secondary-fixed-dim shrink-0" />
-                <div>
-                  <h3 className="text-white font-bold text-sm">Coleta Híbrida</h3>
-                  <p className="text-xs text-slate-300 mt-1 leading-relaxed">Funcionamento prático e seguro em modo online e offline.</p>
+              {[
+                { title: hero.feature1_title, desc: hero.feature1_desc, Icon: featureIcons[0] },
+                { title: hero.feature2_title, desc: hero.feature2_desc, Icon: featureIcons[1] },
+                { title: hero.feature3_title, desc: hero.feature3_desc, Icon: featureIcons[2] },
+                { title: hero.feature4_title, desc: hero.feature4_desc, Icon: featureIcons[3] },
+              ].map((feat, idx) => (
+                <div key={idx} className="flex items-start gap-3 bg-white/5 p-4 rounded-xl border border-white/10 hover:bg-white/10 transition-colors">
+                  <feat.Icon className="w-6 h-6 text-secondary-fixed-dim shrink-0" />
+                  <div>
+                    <h3 className="text-white font-bold text-sm">{feat.title}</h3>
+                    <p className="text-xs text-slate-300 mt-1 leading-relaxed">{feat.desc}</p>
+                  </div>
                 </div>
-              </div>
-              <div className="flex items-start gap-3 bg-white/5 p-4 rounded-xl border border-white/10 hover:bg-white/10 transition-colors">
-                <RefreshCw className="w-6 h-6 text-secondary-fixed-dim shrink-0" />
-                <div>
-                  <h3 className="text-white font-bold text-sm">Sincronização Ativa</h3>
-                  <p className="text-xs text-slate-300 mt-1 leading-relaxed">Dados atualizados automaticamente com o banco central.</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3 bg-white/5 p-4 rounded-xl border border-white/10 hover:bg-white/10 transition-colors">
-                <Database className="w-6 h-6 text-secondary-fixed-dim shrink-0" />
-                <div>
-                  <h3 className="text-white font-bold text-sm">Integração MS</h3>
-                  <p className="text-xs text-slate-300 mt-1 leading-relaxed">Agilidade no envio de informações ao Ministério da Saúde.</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3 bg-white/5 p-4 rounded-xl border border-white/10 hover:bg-white/10 transition-colors">
-                <CheckCircle2 className="w-6 h-6 text-secondary-fixed-dim shrink-0" />
-                <div>
-                  <h3 className="text-white font-bold text-sm">Alta Confiabilidade</h3>
-                  <p className="text-xs text-slate-300 mt-1 leading-relaxed">Mais eficiência nas ações de vigilância e controle de endemias.</p>
-                </div>
-              </div>
+              ))}
             </div>
           </div>
 
@@ -112,8 +117,9 @@ export default function Technology() {
             <div className="relative w-full max-w-sm aspect-[4/3] rounded-2xl overflow-hidden shadow-2xl border border-white/10 bg-primary-container flex items-center justify-center">
               <img 
                 className="w-full h-full object-cover opacity-60 mix-blend-luminosity" 
-                src="https://lh3.googleusercontent.com/aida-public/AB6AXuBlM-D59DZoa8nLxk0lO6ppV9nLq11wrZPgP66y5DUSpb4gpbohjkleYlBkFQjD33XIfCRlpYVcES3q1QwWXHwbz4c_9ekiqP7JDk9r5qbwRNcPWnvHi9KZDDvMZh_Y6hWv1lwSzkHsk_ehVqybMpsiKM-EofZWqfydjdA6KZSVO8NWwH-NqHuYBgSL1yj3_FFuFGa2_icdX1BvBu0b_orIUdF1MEOrSTNYhB31NyISV-M5wOSAzOeY-z5f_AQs8dYt1EwhvtwUaGQ"
+                src={hero.image_url}
                 referrerPolicy="no-referrer"
+                alt="SisEndemias dashboard"
               />
               <div className="absolute inset-0 bg-gradient-to-tr from-primary/90 to-transparent"></div>
               <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center space-y-4">
@@ -168,7 +174,7 @@ export default function Technology() {
       {/* Banner Exclusivo Section */}
       <section className="w-full mt-16 rounded-3xl overflow-hidden shadow-2xl border border-outline-variant">
         <img 
-          src="/banner-sisendemias.jpeg" 
+          src={hero.banner_image_url} 
           alt="Tecnologia Exclusiva Sistema SisEndemias" 
           className="w-full h-auto object-cover"
         />
